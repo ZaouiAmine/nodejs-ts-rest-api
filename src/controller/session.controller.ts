@@ -1,7 +1,12 @@
 import { Request, Response } from "express";
 import { validatePasword } from "../service/user.service";
-import { createSession, createAccessToken } from "../service/session.service";
+import {
+  createSession,
+  createAccessToken,
+  updateSession,
+} from "../service/session.service";
 import config from "config";
+import { get } from "lodash";
 import { sign } from "../utils/jwt.util";
 
 export async function createUserSessionHandler(req: Request, res: Response) {
@@ -17,4 +22,14 @@ export async function createUserSessionHandler(req: Request, res: Response) {
   const refreshToken = sign(session, {
     expiresIn: config.get("refreshTokenTtl"),
   });
+}
+
+export async function invalidateUserSessionHandler(
+  req: Request,
+  res: Response
+) {
+  const sessionId = get(req, "user.session");
+  await updateSession({ _id: sessionId }, { valid: false });
+
+  return res.sendStatus(200);
 }
