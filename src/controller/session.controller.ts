@@ -4,6 +4,7 @@ import {
   createSession,
   createAccessToken,
   updateSession,
+  findSessions,
 } from "../service/session.service";
 import config from "config";
 import { get } from "lodash";
@@ -32,4 +33,11 @@ export async function invalidateUserSessionHandler(
   await updateSession({ _id: sessionId }, { valid: false });
 
   return res.sendStatus(200);
+}
+
+export async function getUserSessionHandler(req: Request, res: Response) {
+  const userId = get(req, "user._id");
+
+  const sessions = await findSessions({ user: userId, valid: true });
+  return res.send(sessions);
 }
